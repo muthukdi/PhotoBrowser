@@ -38,27 +38,32 @@ public class ImageServlet extends HttpServlet
 		if (folder.isFile())
 		{
 			response.setContentType("image/jpeg");
-			// Read the image data into memory
-	        BufferedImage img = ImageIO.read(new File(path));
-	        // If we require a thumbnail, then resize the image
-	        if (type.equals("thumbnail"))
-	        {
-	        	int w = img.getWidth();
-		        int h = img.getHeight();
-		        if (h > w)
+			// Make sure that only one image is stored and manipulated in
+			// memory at any given time in order to avoid memory heap errors
+			synchronized(this)
+			{
+				// Read the image data into memory
+				BufferedImage img = ImageIO.read(new File(path));
+		        // If we require a thumbnail, then resize the image
+		        if (type.equals("thumbnail"))
 		        {
-		        	img = resize(img, 100, (int)(h*100.0)/w);
+		        	int w = img.getWidth();
+			        int h = img.getHeight();
+			        if (h > w)
+			        {
+			        	img = resize(img, 100, (int)(h*100.0)/w);
+			        }
+			        else
+			        {
+			        	img = resize(img, (int)(w*100.0)/h, 100);
+			        }
 		        }
-		        else
-		        {
-		        	img = resize(img, (int)(w*100.0)/h, 100);
-		        }
-	        }
-	        OutputStream out = response.getOutputStream();
-	        // Render the image to the browser window
-			ImageIO.write(img, "jpg", out);
-			img.flush();
-			out.close();
+		        OutputStream out = response.getOutputStream();
+		        // Render the image to the browser window
+				ImageIO.write(img, "jpg", out);
+				img.flush();
+				out.close();
+			}
 		}
 		// If it is a folder, get its list of files and sub-folders
 		else
