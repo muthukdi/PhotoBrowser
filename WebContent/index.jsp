@@ -2,7 +2,7 @@
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
  
-<%@ page import="java.io.File" %>
+<%@ page import="java.io.File, java.util.Date" %>
 
 <html>
 	<head>
@@ -95,6 +95,9 @@
 								<a href="ImageServlet?path=<%=imagePathsArray[i].getAbsolutePath()%>&type=original">
 									<img src="ImageServlet?path=<%=imagePathsArray[i].getAbsolutePath()%>&type=thumbnail" />
 								</a>
+								<br />
+								<%=new Date(imagePathsArray[i].lastModified())%>
+								<br />
 							</div>
 <%
 						}
