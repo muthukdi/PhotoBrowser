@@ -31,11 +31,12 @@ public class ImageServlet extends HttpServlet
 		// Get the parameters from the request
 		String path = request.getParameter("path");
 		String type = request.getParameter("type");
+		System.out.println("Path=" + path + ", Type=" + type);
 		// Obtain a handle on the file/folder represented by this path
-		File folder = new File(path);
+		File f = new File(path);
 		// If it is a file, we can proceed to render it since we can assume
 		// that it is an image file at this point
-		if (folder.isFile())
+		if (f.isFile())
 		{
 			response.setContentType("image/jpeg");
 			// Make sure that only one image is stored and manipulated in
@@ -43,8 +44,14 @@ public class ImageServlet extends HttpServlet
 			synchronized(this)
 			{
 				// Read the image data into memory
-				BufferedImage img = ImageIO.read(new File(path));
-		        // If we require a thumbnail, then resize the image
+				BufferedImage img = ImageIO.read(f);
+				// If this image cannot be read, then replace it with a default image
+				if (img == null)
+				{
+					String pathToWeb = getServletContext().getRealPath("/");
+					img = ImageIO.read(new File(pathToWeb + "images\\error.png"));
+				}
+				// If we require a thumbnail, then resize the image
 		        if (type.equals("thumbnail"))
 		        {
 		        	int w = img.getWidth();
@@ -68,7 +75,7 @@ public class ImageServlet extends HttpServlet
 		// If it is a folder, get its list of files and sub-folders
 		else
 		{
-			File[] paths = folder.listFiles();
+			File[] paths = f.listFiles();
 			// This can be null if the folder represented by this file does not exist
 			if (paths != null)
 			{
@@ -85,7 +92,7 @@ public class ImageServlet extends HttpServlet
 					{
 						String name = paths[i].getName().toLowerCase();
 						// Only include files with common image file extensions
-						if (!(name.contains("jpg") || name.contains("png") || name.contains("gif")))
+						if (!(name.endsWith(".jpg") || name.endsWith(".png") || name.endsWith(".gif")))
 						{
 							continue;
 						}
@@ -111,7 +118,7 @@ public class ImageServlet extends HttpServlet
 				// Store the results in the request
 				request.setAttribute("imagePaths", imagePathsArray);
 				request.setAttribute("folderPaths", folderPathsArray);
-				request.setAttribute("current", folder);
+				request.setAttribute("current", f);
 			}
 			// Forward the request back to the JSP page
 			RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.jsp");
