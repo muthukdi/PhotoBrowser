@@ -121,7 +121,7 @@ public class ImageServlet extends HttpServlet
 				request.setAttribute("current", f);
 			}
 			// Forward the request back to the JSP page
-			RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.jsp");
+			RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/browser.jsp");
 			dispatcher.forward(request, response);
 		}
 
